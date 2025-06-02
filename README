@@ -1,0 +1,13 @@
+/ai_attendance/
+│
+├── /students/
+│   ├── models.py   # Student + Attendance models
+│   ├── views.py    # Registration + daily check views
+│   ├── forms.py
+│   └── templates/
+│
+├── /media/faces/   # Stored cropped face images
+├── /embeddings/    # Saved .npy embeddings
+├── /scripts/
+│   └── match_faces.py
+├── /uploads/       # Daily class images

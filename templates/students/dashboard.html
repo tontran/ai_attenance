@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Dashboard{% endblock %}
+
+{% block content %}
+<h2>Attendance for {{ today }}</h2>
+<table>
+  <tr>
+    <th>Name</th><th>Email</th><th>Present</th><th>Confidence</th>
+  </tr>
+  {% for record in records %}
+  <tr>
+    <td>{{ record.student.name }}</td>
+    <td>{{ record.student.email }}</td>
+    <td>{{ record.present }}</td>
+    <td>{{ record.confidence }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Registration{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow">
+        <div class="card-header text-center bg-primary text-white">
+          <h4>📸 Student Registration</h4>
+        </div>
+        <div class="card-body">
+          <form method="POST" enctype="multipart/form-data" id="student-form">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label">Full Name</label>
+              <input type="text" name="name" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              <input type="email" name="email" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Phone</label>
+              <input type="text" name="phone" class="form-control" required>
+            </div>
+
+            <input type="hidden" name="selfie_data" id="selfie_data">
+
+            <div class="mb-3 text-center">
+              <video id="video" width="100%" height="250" autoplay class="border rounded"></video><br>
+              <button type="button" onclick="capture()" class="btn btn-outline-secondary mt-2">📸 Capture Selfie</button>
+              <canvas id="canvas" width="300" height="250" style="display: none;"></canvas>
+              <img id="preview" class="img-fluid mt-3 rounded shadow" style="display:none;" />
+            </div>
+
+            <div class="d-grid">
+              <button type="submit" class="btn btn-success">✅ Submit</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const video = document.getElementById('video');
+  const canvas = document.getElementById('canvas');
+  const selfieData = document.getElementById('selfie_data');
+  const preview = document.getElementById('preview');
+
+  navigator.mediaDevices.getUserMedia({ video: true })
+    .then(stream => video.srcObject = stream);
+
+  function capture() {
+    canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+    const dataURL = canvas.toDataURL('image/png');
+    selfieData.value = dataURL;
+    preview.src = dataURL;
+    preview.style.display = 'block';
+  }
+</script>
+{% endblock %}
