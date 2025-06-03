@@ -106,11 +106,11 @@ USE_I18N = True
 USE_TZ = True
 
 
-MEDIA_URL = config('MEDIA_URL')
+MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, config('MEDIA_ROOT'))
 
-STATIC_URL = config('STATIC_URL')
-STATIC_ROOT = os.path.join(BASE_DIR, config('STATIC_ROOT'))
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

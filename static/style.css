@@ -1,0 +1,36 @@
+/* 🎨 Global custom styling for AI Attendance */
+
+body {
+  background-color: #f8f9fa;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+h1, h2, h3 {
+  font-weight: 600;
+  color: #212529;
+}
+
+.btn {
+  font-size: 1.1rem;
+}
+
+footer {
+  text-align: center;
+  margin-top: 40px;
+  padding: 20px 0;
+  color: #888;
+}
+
+/* students/register.html */
+.oval-guide {
+  width: 150px;
+  height: 200px;
+  border: 4px dashed green;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.text-info {
+  color: #00bfff;
+}

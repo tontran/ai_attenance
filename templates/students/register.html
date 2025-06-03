@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Student Registration{% endblock %}
+{% block title %}Employee Registration{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
@@ -8,11 +8,12 @@
     <div class="col-md-6">
       <div class="card shadow">
         <div class="card-header text-center bg-primary text-white">
-          <h4>📸 Student Registration</h4>
+          <h4>📸 Employee Registration</h4>
         </div>
         <div class="card-body">
           <form method="POST" enctype="multipart/form-data" id="student-form">
             {% csrf_token %}
+
             <div class="mb-3">
               <label class="form-label">Full Name</label>
               <input type="text" name="name" class="form-control" required>
@@ -30,14 +31,23 @@
 
             <input type="hidden" name="selfie_data" id="selfie_data">
 
-            <div class="mb-3 text-center">
-              <video id="video" width="100%" height="250" autoplay class="border rounded"></video><br>
-              <button type="button" onclick="capture()" class="btn btn-outline-secondary mt-2">📸 Capture Selfie</button>
-              <canvas id="canvas" width="300" height="250" style="display: none;"></canvas>
-              <img id="preview" class="img-fluid mt-3 rounded shadow" style="display:none;" />
+            <div class="camera-wrapper position-relative text-center mb-3">
+              <video id="video" width="100%" height="250" autoplay class="border rounded"></video>
+              <div id="oval-guide" class="oval-guide position-absolute top-50 start-50 translate-middle"></div>
+              <p class="text-info fw-semibold mt-2">🧠 Please align your face within the green oval</p>
             </div>
 
-            <div class="d-grid">
+            <div class="text-center mb-3">
+              <button type="button" class="btn btn-outline-secondary" onclick="capture()">📸 Capture Selfie</button>
+            </div>
+
+            <!-- Hidden preview + canvas -->
+            <div class="text-center">
+              <canvas id="canvas" style="display: none;"></canvas>
+              <img id="preview" class="img-fluid mt-2 rounded shadow" style="display: none;" />
+            </div>
+
+            <div class="d-grid mt-3">
               <button type="submit" class="btn btn-success">✅ Submit</button>
             </div>
           </form>
@@ -49,21 +59,101 @@
 {% endblock %}
 
 {% block scripts %}
+<!-- 👇 Load face-api.js via CDN -->
+<script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
+
 <script>
+window.addEventListener('DOMContentLoaded', () => {
   const video = document.getElementById('video');
   const canvas = document.getElementById('canvas');
   const selfieData = document.getElementById('selfie_data');
   const preview = document.getElementById('preview');
+  const oval = document.getElementById('oval-guide');
 
-  navigator.mediaDevices.getUserMedia({ video: true })
-    .then(stream => video.srcObject = stream);
+  Promise.all([
+    faceapi.nets.tinyFaceDetector.loadFromUri('/static/models')
+  ]).then(startVideo);
 
-  function capture() {
-    canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+  function startVideo() {
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => video.srcObject = stream)
+      .catch(err => console.error("Camera error", err));
+  }
+
+  video.addEventListener('play', () => {
+    const interval = setInterval(async () => {
+      const detection = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions());
+
+      if (detection) {
+        const box = detection.box;
+        const faceCenterX = box.x + box.width / 2;
+        const faceCenterY = box.y + box.height / 2;
+
+        const ovalRect = oval.getBoundingClientRect();
+        const ovalCenterX = ovalRect.left + ovalRect.width / 2;
+        const ovalCenterY = ovalRect.top + ovalRect.height / 2;
+
+        const dx = Math.abs(faceCenterX - ovalCenterX);
+        const dy = Math.abs(faceCenterY - ovalCenterY);
+
+        oval.style.borderColor = (dx < 50 && dy < 60) ? 'green' : 'red';
+      } else {
+        oval.style.borderColor = 'red';
+      }
+    }, 500);
+  });
+
+  window.capture = function () {
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 👀 Kiểm tra orientation
+    const isLandscape = canvas.width > canvas.height;
+
+    if (isLandscape) {
+      // Nếu bạn muốn xử lý landscape về portrait, uncomment phần dưới:
+      /*
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = canvas.height;
+      tempCanvas.height = canvas.width;
+      const tempCtx = tempCanvas.getContext('2d');
+
+      tempCtx.save();
+      tempCtx.translate(tempCanvas.width / 2, tempCanvas.height / 2);
+      tempCtx.rotate(-Math.PI / 2);
+      tempCtx.drawImage(video, -canvas.width / 2, -canvas.height / 2);
+      tempCtx.restore();
+
+      canvas.width = tempCanvas.width;
+      canvas.height = tempCanvas.height;
+      ctx.drawImage(tempCanvas, 0, 0);
+      */
+      // 👉 Nhưng mặc định Thầy để không xoay nữa
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    } else {
+      // ✅ Portrait: vẽ oval và crop như thường
+      ctx.save();
+      ctx.beginPath();
+      ctx.ellipse(canvas.width / 2, canvas.height / 2, canvas.width / 2.2, canvas.height / 2.5, 0, 0, 2 * Math.PI);
+      ctx.clip();
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      ctx.restore();
+    }
+
     const dataURL = canvas.toDataURL('image/png');
     selfieData.value = dataURL;
     preview.src = dataURL;
     preview.style.display = 'block';
-  }
+
+    // 🔒 Tắt camera sau khi chụp
+    const stream = video.srcObject;
+    const tracks = stream.getTracks();
+    tracks.forEach(track => track.stop());
+    video.srcObject = null;
+  };
+});
 </script>
 {% endblock %}

@@ -1,13 +1,36 @@
-/ai_attendance/
+ai_attendance/                 ← Django project root
+├── core/                      ← Main config project (settings, URL root)
+│   ├── __init__.py
+│   ├── settings.py            ← SECRET_KEY, DB, TIME_ZONE, etc.
+│   ├── urls.py                ← Root URLs (admin, home, include modules)
+│   └── wsgi.py
 │
-├── /students/
-│   ├── models.py   # Student + Attendance models
-│   ├── views.py    # Registration + daily check views
-│   ├── forms.py
-│   └── templates/
+├── students/                  ← App for student registration & attendance
+│   ├── __init__.py
+│   ├── admin.py               ← Show Student & Attendance in admin panel
+│   ├── apps.py
+│   ├── forms.py               ← (optional) Custom forms for registration
+│   ├── models.py              ← Student & Attendance models
+│   ├── urls.py                ← /student/register/, /dashboard/, ...
+│   ├── views.py               ← Business logic for student features
+│   ├── utils.py               ← Embedding + attendance logic (DeepFace)
 │
-├── /media/faces/   # Stored cropped face images
-├── /embeddings/    # Saved .npy embeddings
-├── /scripts/
-│   └── match_faces.py
-├── /uploads/       # Daily class images
+├── templates/
+│   ├── base.html              ← Main HTML layout (Bootstrap included)
+│   ├── home.html              ← Welcome landing page
+│   └── students/
+│       ├── register.html      ← Student registration w/ webcam
+│       ├── register_success.html
+│       └── dashboard.html     ← Attendance dashboard view
+│
+├── static/                    ← JS, CSS, image assets
+│   └── style.css
+│
+├── media/                     ← Uploaded files, images, embeddings
+│   ├── selfies/
+│   └── embeddings/
+│
+├── .env                       ← Environment variables (SECRET_KEY, DB...)
+├── manage.py
+├── requirements.txt           ← All dependencies
+└── README.md                  ← (You can add this to document setup)

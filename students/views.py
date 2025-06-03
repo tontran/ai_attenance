@@ -7,7 +7,7 @@ from .forms import StudentForm
 from .utils import generate_face_embedding
 
 def home(request):
-    return redirect('register_student')
+    return render(request, 'home.html')
 
 def register_student(request):
     if request.method == 'POST':

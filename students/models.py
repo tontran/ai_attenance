@@ -5,7 +5,11 @@ class Student(models.Model):
     email = models.EmailField()
     phone = models.CharField(max_length=20)
     selfie = models.ImageField(upload_to="selfies/")
-    embedding_path = models.FilePathField(path="media/embeddings", match=".*\.npy$", recursive=True)
+    embedding_path = models.FilePathField(
+        path="media/embeddings",
+        match=".*\.npy$", recursive=True, allow_files=True, blank=True, null=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)  # ✅ Add this line
 
     def __str__(self):
         return self.name
